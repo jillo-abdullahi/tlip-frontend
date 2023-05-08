@@ -11,3 +11,15 @@ export interface Custodian {
   phone: string;
   email: string;
 }
+
+export enum EventType {
+  Shipment = "Shipment",
+  Receipt = "Receipt",
+  Transfer = "Transfer",
+}
+
+export enum EventStatus {
+  Transit = "Transit",
+  Instock = "Instock",
+  Delivered = "Delivered",
+}

@@ -5,7 +5,7 @@ import { Header } from "@/components/header";
 import { EmptyState } from "@/components/emptyState";
 import { Nav } from "@/components/nav";
 import { products } from "@/products";
-import { ProductDetails } from "@/components/productDetails";
+import { ProductDetails } from "@/containers/ProductDetails";
 import { ProductsList } from "@/containers/ProductsList";
 import { Location, Custodian } from "@/types";
 import { InputField, TextArea } from "@/components/inputs";
@@ -13,7 +13,7 @@ import { Modal } from "@/components/modal";
 
 export default function Home() {
   const [productsList, setProductsList] = useState(products);
-  const [activeProduct, setActiveProduct] = useState(null);
+  const [activeProduct, setActiveProduct] = useState(products[0]);
   const [createModalOpen, setCreateModalOpen] = useState(false);
 
   // product details
@@ -28,12 +28,15 @@ export default function Home() {
     state: "",
     address: "",
   });
-  const [custodian, setCustodian] = useState<Custodian>({
-    name: "",
-    email: "",
-    phone: "",
-    address: "",
-  });
+  const [shelfLife, setShelfLife] = useState(0);
+  const [safetyStock, setSafetyStock] = useState(0);
+  const [weight, setWeight] = useState(0);
+  // const [custodian, setCustodian] = useState<Custodian>({
+  //   name: "",
+  //   email: "",
+  //   phone: "",
+  //   address: "",
+  // });
 
   const handleCreateProduct = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -68,12 +71,24 @@ export default function Home() {
     });
   };
 
-  const handleCustodianChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setCustodian({
-      ...custodian,
-      [e.target.id]: e.target.value,
-    });
+  const handleShelfLifeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setShelfLife(parseInt(e.target.value));
   };
+
+  const handleSafetyStockChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSafetyStock(parseInt(e.target.value));
+  };
+
+  const handleWeightChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setWeight(parseInt(e.target.value));
+  };
+
+  // const handleCustodianChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   setCustodian({
+  //     ...custodian,
+  //     [e.target.id]: e.target.value,
+  //   });
+  // };
 
   const discardForm = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -153,9 +168,8 @@ export default function Home() {
                 />
               </div>
 
-              {/* price and color  */}
+              {/* price, color, and quantity  */}
               <div className="flex items-center justify-start space-x-6 mt-2">
-                {/* price  */}
                 <InputField
                   value={price.toString()}
                   handleChange={handlePriceChange}
@@ -170,6 +184,42 @@ export default function Home() {
                   handleChange={handleColorChange}
                   id="color"
                   label="Color"
+                />
+
+                <InputField
+                  value={quantity.toString()}
+                  handleChange={handleColorChange}
+                  id="quantity"
+                  label="Quantity"
+                  type="number"
+                  isRequired={true}
+                />
+              </div>
+
+              {/* shelf life, safety stock and weight  */}
+              <div className="flex items-center justify-start space-x-6 mt-2">
+                <InputField
+                  value={shelfLife.toString()}
+                  handleChange={handleShelfLifeChange}
+                  id="shelfLife"
+                  label="Shelf life (days)"
+                  type="number"
+                />
+
+                <InputField
+                  value={safetyStock.toString()}
+                  handleChange={handleSafetyStockChange}
+                  id="safetyStock"
+                  label="Safety stock"
+                  type="number"
+                />
+
+                <InputField
+                  value={weight.toString()}
+                  handleChange={handleWeightChange}
+                  id="weight"
+                  label="Weight (kg)"
+                  type="number"
                 />
               </div>
 
@@ -189,6 +239,7 @@ export default function Home() {
                     handleChange={handleLocationChange}
                     id="city"
                     label="City"
+                    isRequired={true}
                   />
 
                   <InputField
@@ -207,7 +258,7 @@ export default function Home() {
               </div>
 
               {/* custodian  */}
-              <div className="flex flex-col space-y-4">
+              {/* <div className="flex flex-col space-y-4">
                 <div className="font-bold text-blue-500 mt-8">Custodian</div>
                 <InputField
                   value={custodian?.name}
@@ -240,7 +291,7 @@ export default function Home() {
                     type="tel"
                   />
                 </div>
-              </div>
+              </div> */}
 
               {/* CTAs  */}
               <div className="flex items-center justify-end space-x-4 pt-8">
