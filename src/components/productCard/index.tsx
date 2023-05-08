@@ -1,8 +1,8 @@
 import Image from "next/image";
 
-export const ItemCard: React.FC = () => {
+export const ProductCard: React.FC = () => {
   return (
-    <div className="w-full bg-blue-700 grid grid-cols-6 gap-4 p-6 rounded-lg">
+    <button className="w-full bg-blue-700 grid grid-cols-6 gap-4 p-6 rounded-lg">
       {/* product id  */}
       <div className="font-bold">
         <span className="text-blue-200">#</span>
@@ -27,6 +27,6 @@ export const ItemCard: React.FC = () => {
           />
         </button>
       </div>
-    </div>
+    </button>
   );
 };
