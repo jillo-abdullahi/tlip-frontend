@@ -7,22 +7,86 @@ import { Nav } from "@/components/nav";
 import { products } from "@/products";
 import { ProductDetails } from "@/components/productDetails";
 import { ProductsList } from "@/containers/ProductsList";
+import { CreateProductModal } from "@/containers/CreateProductModal";
+import { Location, Custodian } from "@/types";
+import { InputField } from "@/components/inputs";
 
 export default function Home() {
   const [productsList, setProductsList] = useState(products);
-  const [activeProduct, setActiveProduct] = useState(products[0]);
+  const [activeProduct, setActiveProduct] = useState(null);
+  const [createModalOpen, setCreateModalOpen] = useState(false);
+
+  // product details
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [price, setPrice] = useState(0);
+  const [quantity, setQuantity] = useState(0);
+  const [color, setColor] = useState("");
+  const [productLocation, setProductLocation] = useState<Location>({
+    city: "",
+    country: "",
+    state: "",
+    address: "",
+  });
+  const [custodian, setCustodian] = useState<Custodian>({
+    name: "",
+    email: "",
+    phone: "",
+    address: "",
+  });
+
+  const handleCreateProduct = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+  };
+
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setName(e.target.value);
+  };
+
+  const handleDescriptionChange = (
+    e: React.ChangeEvent<HTMLTextAreaElement>
+  ) => {
+    setDescription(e.target.value);
+  };
+
+  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPrice(parseInt(e.target.value));
+  };
+
+  const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setQuantity(parseInt(e.target.value));
+  };
+
+  const handleColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setColor(e.target.value);
+  };
+
+  const handleLocationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setProductLocation({
+      ...productLocation,
+      [e.target.id]: e.target.value,
+    });
+  };
+
+  const handleCustodianChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setCustodian({
+      ...custodian,
+      [e.target.id]: e.target.value,
+    });
+  };
 
   return (
     <main className="flex relative w-full min-h-screen items-start justify-center">
       <Nav />
-
       <Head>
         <title key="title">tlip-ui</title>
       </Head>
       <div className="w-full h-full p-24 flex justify-center">
         <div className="w-full max-w-730">
           {/* header section  */}
-          {activeProduct == null && <Header />}
+          {activeProduct == null && (
+            <Header setCreateModalOpen={setCreateModalOpen} />
+          )}
 
           {/* list of products */}
           {productsList.length > 0 && activeProduct == null && (
@@ -55,6 +119,24 @@ export default function Home() {
             </div>
           )}
         </div>
+
+        {/* product creation modal  */}
+        <CreateProductModal
+          createModalOpen={createModalOpen}
+          setCreateModalOpen={setCreateModalOpen}
+          name={name}
+          handleNameChange={handleNameChange}
+          description={description}
+          handleDescriptionChange={handleDescriptionChange}
+          price={price}
+          handlePriceChange={handlePriceChange}
+          color={color}
+          handleColorChange={handleColorChange}
+          productLocation={productLocation}
+          handleLocationChange={handleLocationChange}
+          custodian={custodian}
+          handleCustodianChange={handleCustodianChange}
+        />
       </div>
     </main>
   );

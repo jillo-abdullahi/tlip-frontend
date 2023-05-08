@@ -20,10 +20,10 @@ module.exports = {
           100: "#DFE3FA",
         },
         gray: {
-          primary: "#F8F8FB",
+          DEFAULT: "#F8F8FB",
         },
         red: {
-          primary: "#EC5757",
+          DEFAULT: "#EC5757",
         },
       },
       maxWidth: {

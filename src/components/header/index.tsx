@@ -1,6 +1,13 @@
 import { ButtonWithIcon } from "@/components/buttons";
+import { Dispatch, SetStateAction } from "react";
 
-export const Header: React.FC = () => {
+interface HeaderProps {
+  setCreateModalOpen: Dispatch<SetStateAction<boolean>>
+}
+
+export const Header: React.FC<HeaderProps> = ({
+  setCreateModalOpen
+}) => {
   //todo: update with actual number of product items
   const products = [];
 
@@ -17,7 +24,7 @@ export const Header: React.FC = () => {
       <div className="flex items-center space-x-4">
         <ButtonWithIcon
           text="New Product"
-          onClick={() => console.log("clicked")}
+          onClick={() => setCreateModalOpen(true)}
         />
       </div>
     </header>

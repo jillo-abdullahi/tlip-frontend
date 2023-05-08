@@ -13,18 +13,15 @@ export const products = [
     priceUSD: 100,
     quantity: 10,
     colour: "red",
-    size: "M",
     weight: 100,
     unitOfMeasure: "kg",
     shelfLife: 10,
     supplier: {
-      id: 1,
       name: "Supplier 1",
       phone: "1234567890",
       email: "supplier@email.com",
     },
     custodianId: {
-      id: 1,
       name: "Custodian 1",
       email: "custodian@gmail.com",
       phone: "1234567890",
@@ -32,7 +29,7 @@ export const products = [
     safetyStock: 600,
   },
   {
-    id: 1234,
+    id: 12343,
     name: "Product 1",
     description: "Product 1 description",
     createdOn: "2021-01-01",
@@ -64,7 +61,7 @@ export const products = [
     safetyStock: 600,
   },
   {
-    id: 1234,
+    id: 123433,
     name: "Product 1",
     description: "Product 1 description",
     createdOn: "2021-01-01",
@@ -96,7 +93,7 @@ export const products = [
     safetyStock: 600,
   },
   {
-    id: 1234,
+    id: 1233334,
     name: "Product 1",
     description: "Product 1 description",
     createdOn: "2021-01-01",
