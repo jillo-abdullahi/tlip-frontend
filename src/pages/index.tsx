@@ -7,9 +7,9 @@ import { Nav } from "@/components/nav";
 import { products } from "@/products";
 import { ProductDetails } from "@/components/productDetails";
 import { ProductsList } from "@/containers/ProductsList";
-import { CreateProductModal } from "@/containers/CreateProductModal";
 import { Location, Custodian } from "@/types";
-import { InputField } from "@/components/inputs";
+import { InputField, TextArea } from "@/components/inputs";
+import { Modal } from "@/components/modal";
 
 export default function Home() {
   const [productsList, setProductsList] = useState(products);
@@ -75,6 +75,11 @@ export default function Home() {
     });
   };
 
+  const discardForm = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    setCreateModalOpen(false);
+  };
+
   return (
     <main className="flex relative w-full min-h-screen items-start justify-center">
       <Nav />
@@ -121,22 +126,140 @@ export default function Home() {
         </div>
 
         {/* product creation modal  */}
-        <CreateProductModal
-          createModalOpen={createModalOpen}
-          setCreateModalOpen={setCreateModalOpen}
-          name={name}
-          handleNameChange={handleNameChange}
-          description={description}
-          handleDescriptionChange={handleDescriptionChange}
-          price={price}
-          handlePriceChange={handlePriceChange}
-          color={color}
-          handleColorChange={handleColorChange}
-          productLocation={productLocation}
-          handleLocationChange={handleLocationChange}
-          custodian={custodian}
-          handleCustodianChange={handleCustodianChange}
-        />
+
+        <Modal open={createModalOpen} setOpen={setCreateModalOpen}>
+          <div className="flex flex-col space-y-4">
+            <h1 className="text-2xl text-white font-bold">New Product</h1>
+            <form className="flex flex-col space-y-4 mt-8">
+              <div className="flex flex-col space-y-4">
+                <div className="font-bold text-blue-500 mt-4">
+                  Basic information
+                </div>
+                {/* name  */}
+                <InputField
+                  value={name}
+                  handleChange={handleNameChange}
+                  id="name"
+                  label="Name"
+                  isRequired={true}
+                />
+
+                {/* description  */}
+                <TextArea
+                  value={description}
+                  handleChange={handleDescriptionChange}
+                  id="description"
+                  label="Description"
+                />
+              </div>
+
+              {/* price and color  */}
+              <div className="flex items-center justify-start space-x-6 mt-2">
+                {/* price  */}
+                <InputField
+                  value={price.toString()}
+                  handleChange={handlePriceChange}
+                  id="price"
+                  label="Price (USD)"
+                  isRequired={true}
+                  type="number"
+                />
+
+                <InputField
+                  value={color}
+                  handleChange={handleColorChange}
+                  id="color"
+                  label="Color"
+                />
+              </div>
+
+              {/* location  */}
+              <div className="flex flex-col space-y-4">
+                <div className="font-bold text-blue-500 mt-8">Location</div>
+                <InputField
+                  value={productLocation?.address}
+                  handleChange={handleLocationChange}
+                  id="address"
+                  label="Street address"
+                  isRequired={true}
+                />
+                <div className="flex items-center justify-start space-x-4">
+                  <InputField
+                    value={productLocation?.city}
+                    handleChange={handleLocationChange}
+                    id="city"
+                    label="City"
+                  />
+
+                  <InputField
+                    value={productLocation?.state}
+                    handleChange={handleLocationChange}
+                    id="state"
+                    label="State"
+                  />
+                  <InputField
+                    value={productLocation?.country}
+                    handleChange={handleLocationChange}
+                    id="country"
+                    label="Country"
+                  />
+                </div>
+              </div>
+
+              {/* custodian  */}
+              <div className="flex flex-col space-y-4">
+                <div className="font-bold text-blue-500 mt-8">Custodian</div>
+                <InputField
+                  value={custodian?.name}
+                  handleChange={handleCustodianChange}
+                  id="name"
+                  label="Name"
+                  isRequired={true}
+                />
+                <InputField
+                  value={custodian?.address}
+                  handleChange={handleCustodianChange}
+                  id="address"
+                  label="Street address"
+                />
+
+                <div className="flex items-center justify-start space-x-4">
+                  <InputField
+                    value={custodian?.email}
+                    handleChange={handleCustodianChange}
+                    id="email"
+                    label="Email"
+                    isRequired={true}
+                    type="email"
+                  />
+                  <InputField
+                    value={custodian?.phone}
+                    handleChange={handleCustodianChange}
+                    id="phone"
+                    label="Phone"
+                    type="tel"
+                  />
+                </div>
+              </div>
+
+              {/* CTAs  */}
+              <div className="flex items-center justify-end space-x-4 pt-8">
+                <button
+                  onClick={discardForm}
+                  className="text-blue-200 underline hover:text-blue-100 transition-all duration-300 ease-in-out"
+                >
+                  Discard
+                </button>
+                <button
+                  type="submit"
+                  className="px-8 py-3 bg-blue-500 hover:bg-blue-300 rounded-full transition-all duration-300 ease-in-out flex items-center justify-center"
+                >
+                  <span className="text-white font-bold text-lg">Create</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </Modal>
       </div>
     </main>
   );
