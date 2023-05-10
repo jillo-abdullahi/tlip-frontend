@@ -29,7 +29,7 @@ export const InputField: React.FC<InputFieldProps> = ({
         {isRequired && <span className="text-red-500">*</span>}
       </div>
       <input
-        className={`w-full outline-none outline-offset-0 border border-blue-600 py-4 px-5 rounded hover p-2 font-bold placeholder-opacity-25 text-white bg-blue-700 placeholder-white caret-blue-500 ${
+        className={`w-full outline-none outline-offset-0 border border-blue-600 py-4 px-5 rounded font-bold placeholder-opacity-25 text-white bg-blue-700 placeholder-white caret-blue-500 ${
           error ? "outline-red outline-1 border" : ""
         }`}
         type={type}

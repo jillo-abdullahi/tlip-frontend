@@ -19,9 +19,9 @@ export enum EventType {
 }
 
 export enum EventStatus {
-  Transit = "Transit",
-  Instock = "Instock",
-  Delivered = "Delivered",
+  Pending = "Pending",
+  Completed = "Completed",
+  Cancelled = "Cancelled",
 }
 
 export interface Product {

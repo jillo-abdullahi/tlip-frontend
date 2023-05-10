@@ -9,7 +9,7 @@ export const Nav: React.FC = () => {
       className={`fixed bg-blue-700 flex items-center justify-between ${mobileAndTabletStyles} ${desktopStyles}`}
     >
       <Link href="/">
-        <Image src="/images/icon-logo.svg" alt="logo" width={80} height={80} />
+        <Image src="/images/icon-logo.svg" alt="logo" width={80} height={80} className="cursor-pointer" />
       </Link>
       <div className="flex items-center p-4">
         <Image className="rounded-full" src="/images/icon-sample-avatar.jpeg" alt="avatar" width={40} height={40} />

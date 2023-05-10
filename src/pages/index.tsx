@@ -4,7 +4,6 @@ import Image from "next/image";
 import { Header } from "@/components/header";
 import { EmptyState } from "@/components/emptyState";
 import { Nav } from "@/components/nav";
-import { ProductDetails } from "@/containers/ProductDetails";
 import { ProductsList } from "@/containers/ProductsList";
 import { Location, Custodian } from "@/types";
 import { InputField, TextArea } from "@/components/inputs";
@@ -18,6 +17,7 @@ import { ErrorIcon } from "@/components/icons/error";
 import { SuccessIcon } from "@/components/icons/success";
 import { GradientAvatar } from "@/components/gradientAvatar";
 import moment from "moment";
+import { CreateEventModal } from "@/containers/CreateEventModal";
 
 const BASE_API_URL = "http://localhost:3000";
 
@@ -45,17 +45,15 @@ export default function Home() {
   const [itemCreationOrEditStatus, setItemCreationOrEditStatus] =
     useState<ProgressStatus | null>(null);
 
-  // loading progress for editing item
-  const [itemEditStatus, setItemEditStatus] = useState<ProgressStatus | null>(
-    null
-  );
-
   // loading progress for fetching products
   const [fetchProductsStatus, setFetchProductsStatus] =
     useState<ProgressStatus | null>(null);
 
   // edit product states
   const [isEditingProduct, setIsEditingProduct] = useState(false);
+
+  // creating new event states
+  const [createEventModalOpen, setCreateEventModalOpen] = useState(false);
 
   const createNewProduct = (): void => {
     const newItem = {
@@ -96,7 +94,7 @@ export default function Home() {
       });
   };
 
-  const updateProduct = (e: any): void => {
+  const updateProduct = (e: React.FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
     const updatedItem = {
       name,
@@ -387,7 +385,7 @@ export default function Home() {
                     />
                     <ButtonWithIcon
                       text="Add Event"
-                      onClick={() => console.log("clicked")}
+                      onClick={() => setCreateEventModalOpen(true)}
                     />
                   </div>
                 </div>
@@ -503,6 +501,13 @@ export default function Home() {
             </div>
           )}
         </div>
+
+        {/* Modal to create event  */}
+        <CreateEventModal
+          open={createEventModalOpen}
+          setOpen={setCreateEventModalOpen}
+          activeProduct={activeProduct}
+        />
 
         {/* product creation modal  */}
         <Modal open={createOrEditModalOpen} setOpen={closeCreateModal}>
