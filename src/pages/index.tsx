@@ -43,7 +43,10 @@ export default function Home() {
   const [itemCreationStatus, setItemCreationStatus] =
     useState<ProgressStatus | null>(null);
 
-  // change handlers for creating item
+  // loading progress for fetching products
+  const [fetchProductsStatus, setFetchProductsStatus] =
+    useState<ProgressStatus | null>(null);
+
   const createNewProduct = (): void => {
     const newItem = {
       name,
@@ -59,8 +62,6 @@ export default function Home() {
       safetyStock,
     };
 
-    console.log({ newItem });
-
     fetch(`${BASE_API_URL}/items`, {
       method: "POST",
       headers: {
@@ -75,14 +76,43 @@ export default function Home() {
         return response.json();
       })
       .then((data) => {
-        console.log({ data });
         setItemCreationStatus(ProgressStatus.Completed);
+
+        // refetch products
+        fetchProducts();
       })
       .catch((error) => {
-        console.log({ error });
         setItemCreationStatus(ProgressStatus.Failed);
       });
   };
+
+  const fetchProducts = (): void => {
+    fetch(`${BASE_API_URL}/items`)
+      .then((response) => {
+        if (!response.ok) {
+          setFetchProductsStatus(ProgressStatus.Failed);
+        }
+        return response.json();
+      })
+      .then((data) => {
+        setProductsList(data);
+        setFetchProductsStatus(ProgressStatus.Completed);
+      })
+      .catch((error) => {
+        setFetchProductsStatus(ProgressStatus.Failed);
+      });
+
+    setFetchProductsStatus(ProgressStatus.InProgress);
+  };
+
+  const closeCreateModal = (): void => {
+    setCreateModalOpen(false);
+    setItemCreationStatus(null);
+    clearForm();
+  };
+
+  console.log({ itemCreationStatus });
+
   const handleCreateProduct = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -151,26 +181,20 @@ export default function Home() {
 
   const discardForm = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    setCreateModalOpen(false);
-
-    // clear form state
-    clearForm();
+    closeCreateModal();
   };
 
   // fetch all items to display
   useEffect(() => {
-    fetch(`${BASE_API_URL}/items`)
-      .then((res) => res.json())
-      .then((data) => {
-        setProductsList(data);
-      });
+    setFetchProductsStatus(ProgressStatus.InProgress);
+    fetchProducts();
   }, []);
 
   return (
     <main className="flex relative w-full min-h-screen items-start justify-center">
       <Nav />
       <Head>
-        <title key="title">tlip-ui</title>
+        <title key="title">TLIP</title>
       </Head>
       <div className="w-full h-full p-24 flex justify-center">
         <div className="w-full max-w-730">
@@ -183,19 +207,50 @@ export default function Home() {
           )}
 
           {/* list of products */}
-          {productsList.length > 0 && activeProduct == null && (
-            <div className="mt-14">
-              <ProductsList
-                products={productsList}
-                setActiveProduct={setActiveProduct}
-              />
-            </div>
-          )}
-          {productsList.length === 0 && (
-            <div className="mt-16">
-              <EmptyState />
-            </div>
-          )}
+          {productsList.length > 0 &&
+            activeProduct == null &&
+            fetchProductsStatus !== ProgressStatus.InProgress && (
+              <div className="mt-14">
+                <ProductsList
+                  products={productsList}
+                  setActiveProduct={setActiveProduct}
+                />
+              </div>
+            )}
+
+          {/* empty state for products list  */}
+          {productsList.length === 0 &&
+            fetchProductsStatus !== ProgressStatus.Failed && (
+              <div className="mt-16">
+                <EmptyState />
+              </div>
+            )}
+
+          {/* progress state for fetching items  */}
+          {fetchProductsStatus === ProgressStatus.InProgress &&
+            activeProduct == null && (
+              <div className="mt-16">
+                <EmptyState
+                  icon={<SpinnerIcon color="#7C5DFA" size={100} />}
+                  subText="Hang on while we find products"
+                  titleText="Fetching Products"
+                />
+              </div>
+            )}
+
+          {/* error state for fetching items  */}
+          {fetchProductsStatus === ProgressStatus.Failed &&
+            activeProduct == null && (
+              <div className="mt-16">
+                <EmptyState
+                  icon={<ErrorIcon size={100} />}
+                  subText="Something went wrong while attempting to fetch products"
+                  titleText="Could not find products"
+                />
+              </div>
+            )}
+
+          {/* show details of active product  */}
           {activeProduct != null && (
             <div className="flex flex-col space-y-6 w-full">
               {/* product detail nav  */}
@@ -312,7 +367,7 @@ export default function Home() {
         </div>
 
         {/* product creation modal  */}
-        <Modal open={createModalOpen} setOpen={setCreateModalOpen}>
+        <Modal open={createModalOpen} setOpen={closeCreateModal}>
           {/* default modal state  */}
           {itemCreationStatus === null && (
             <div className="flex flex-col space-y-4">
@@ -450,6 +505,12 @@ export default function Home() {
               <div className="text-blue-100 font-bold text-xl">
                 Product created successfully
               </div>
+              <button
+                className="px-8 py-3 bg-blue-500 hover:bg-blue-300 rounded-full transition-all duration-300 ease-in-out flex items-center justify-center"
+                onClick={closeCreateModal}
+              >
+                <span className="text-white font-bold text-lg">Close</span>
+              </button>
             </div>
           )}
 
