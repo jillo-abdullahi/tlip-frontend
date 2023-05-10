@@ -1,6 +1,6 @@
 export interface Location {
   city: string;
-  state: string;
+  postalCode: string;
   country: string;
   address: string;
 }
@@ -40,4 +40,10 @@ export interface Product {
   safetyStock?: number;
   country?: string;
   weight?: number;
+}
+
+export enum ProgressStatus {
+  InProgress = "InProgress",
+  Completed = "Completed",
+  Failed = "Failed",
 }

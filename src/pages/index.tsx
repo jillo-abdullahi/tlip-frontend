@@ -4,7 +4,6 @@ import Image from "next/image";
 import { Header } from "@/components/header";
 import { EmptyState } from "@/components/emptyState";
 import { Nav } from "@/components/nav";
-import { products } from "@/products";
 import { ProductDetails } from "@/containers/ProductDetails";
 import { ProductsList } from "@/containers/ProductsList";
 import { Location, Custodian } from "@/types";
@@ -13,11 +12,16 @@ import { Modal } from "@/components/modal";
 import { ItemDetail } from "@/components/itemDetail";
 import { Button, ButtonWithIcon } from "@/components/buttons";
 import { EventStatusBadge } from "@/components/eventStatusBadge";
-import { EventStatus } from "@/types";
+import { EventStatus, Product, ProgressStatus } from "@/types";
+import { SpinnerIcon } from "@/components/icons/spinner";
+import { ErrorIcon } from "@/components/icons/error";
+import { SuccessIcon } from "@/components/icons/success";
+
+const BASE_API_URL = "http://localhost:3000";
 
 export default function Home() {
-  const [productsList, setProductsList] = useState([]);
-  const [activeProduct, setActiveProduct] = useState(null);
+  const [productsList, setProductsList] = useState<Product[]>([]);
+  const [activeProduct, setActiveProduct] = useState<Product | null>(null);
   const [createModalOpen, setCreateModalOpen] = useState(false);
 
   // product details
@@ -29,16 +33,61 @@ export default function Home() {
   const [productLocation, setProductLocation] = useState<Location>({
     city: "",
     country: "",
-    state: "",
+    postalCode: "",
     address: "",
   });
   const [shelfLife, setShelfLife] = useState(0);
   const [safetyStock, setSafetyStock] = useState(0);
-  const [weight, setWeight] = useState(0);
+
+  // loading progress for create item
+  const [itemCreationStatus, setItemCreationStatus] =
+    useState<ProgressStatus | null>(null);
 
   // change handlers for creating item
+  const createNewProduct = (): void => {
+    const newItem = {
+      name,
+      description,
+      price,
+      quantity,
+      color,
+      city: productLocation.city,
+      country: productLocation.country,
+      postalCode: productLocation.postalCode,
+      address: productLocation.address,
+      shelfLife,
+      safetyStock,
+    };
+
+    console.log({ newItem });
+
+    fetch(`${BASE_API_URL}/items`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(newItem),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          setItemCreationStatus(ProgressStatus.Failed);
+        }
+        return response.json();
+      })
+      .then((data) => {
+        console.log({ data });
+        setItemCreationStatus(ProgressStatus.Completed);
+      })
+      .catch((error) => {
+        console.log({ error });
+        setItemCreationStatus(ProgressStatus.Failed);
+      });
+  };
   const handleCreateProduct = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    setItemCreationStatus(ProgressStatus.InProgress);
+    createNewProduct();
   };
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -78,33 +127,44 @@ export default function Home() {
     setSafetyStock(parseInt(e.target.value));
   };
 
-  const handleWeightChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setWeight(parseInt(e.target.value));
-  };
-
   // const handleCustodianChange = (e: React.ChangeEvent<HTMLInputElement>) => {
   //   setCustodian({
   //     ...custodian,
   //     [e.target.id]: e.target.value,
   //   });
   // };
+  const clearForm = (): void => {
+    setName("");
+    setDescription("");
+    setPrice(0);
+    setQuantity(0);
+    setColor("");
+    setProductLocation({
+      city: "",
+      country: "",
+      postalCode: "",
+      address: "",
+    });
+    setShelfLife(0);
+    setSafetyStock(0);
+  };
 
   const discardForm = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     setCreateModalOpen(false);
+
+    // clear form state
+    clearForm();
   };
 
-  const API_URL = "http://localhost:3000/items";
   // fetch all items to display
   useEffect(() => {
-    fetch(API_URL)
+    fetch(`${BASE_API_URL}/items`)
       .then((res) => res.json())
       .then((data) => {
         setProductsList(data);
       });
   }, []);
-
-  console.log(productsList);
 
   return (
     <main className="flex relative w-full min-h-screen items-start justify-center">
@@ -116,13 +176,19 @@ export default function Home() {
         <div className="w-full max-w-730">
           {/* header section  */}
           {activeProduct == null && (
-            <Header setCreateModalOpen={setCreateModalOpen} />
+            <Header
+              setCreateModalOpen={setCreateModalOpen}
+              numberOfProducts={productsList.length}
+            />
           )}
 
           {/* list of products */}
           {productsList.length > 0 && activeProduct == null && (
             <div className="mt-14">
-              <ProductsList products={productsList} />
+              <ProductsList
+                products={productsList}
+                setActiveProduct={setActiveProduct}
+              />
             </div>
           )}
           {productsList.length === 0 && (
@@ -134,7 +200,10 @@ export default function Home() {
             <div className="flex flex-col space-y-6 w-full">
               {/* product detail nav  */}
               <div className="flex w-full items-center justify-start">
-                <button className="flex space-x-6 items-center w-fit">
+                <button
+                  className="flex space-x-6 items-center w-fit"
+                  onClick={() => setActiveProduct(null)}
+                >
                   <Image
                     src="/images/icon-left-carat.svg"
                     alt="left"
@@ -244,137 +313,179 @@ export default function Home() {
 
         {/* product creation modal  */}
         <Modal open={createModalOpen} setOpen={setCreateModalOpen}>
-          <div className="flex flex-col space-y-4">
-            <h1 className="text-2xl text-white font-bold">New Product</h1>
-            <form className="flex flex-col space-y-4 mt-8">
-              <div className="flex flex-col space-y-4">
-                <div className="font-bold text-blue-500 mt-4">
-                  Basic information
-                </div>
-                {/* name  */}
-                <InputField
-                  value={name}
-                  handleChange={handleNameChange}
-                  id="name"
-                  label="Name"
-                  isRequired={true}
-                />
-
-                {/* description  */}
-                <TextArea
-                  value={description}
-                  handleChange={handleDescriptionChange}
-                  id="description"
-                  label="Description"
-                />
-              </div>
-
-              {/* price, color, and quantity  */}
-              <div className="flex items-center justify-start space-x-6 mt-2">
-                <InputField
-                  value={price.toString()}
-                  handleChange={handlePriceChange}
-                  id="price"
-                  label="Price (USD)"
-                  isRequired={true}
-                  type="number"
-                />
-
-                <InputField
-                  value={color}
-                  handleChange={handleColorChange}
-                  id="color"
-                  label="Color"
-                />
-
-                <InputField
-                  value={quantity.toString()}
-                  handleChange={handleColorChange}
-                  id="quantity"
-                  label="Quantity"
-                  type="number"
-                  isRequired={true}
-                />
-              </div>
-
-              {/* shelf life, safety stock and weight  */}
-              <div className="flex items-center justify-start space-x-6 mt-2">
-                <InputField
-                  value={shelfLife.toString()}
-                  handleChange={handleShelfLifeChange}
-                  id="shelfLife"
-                  label="Shelf life (days)"
-                  type="number"
-                />
-
-                <InputField
-                  value={safetyStock.toString()}
-                  handleChange={handleSafetyStockChange}
-                  id="safetyStock"
-                  label="Safety stock"
-                  type="number"
-                />
-
-                <InputField
-                  value={weight.toString()}
-                  handleChange={handleWeightChange}
-                  id="weight"
-                  label="Weight (kg)"
-                  type="number"
-                />
-              </div>
-
-              {/* location  */}
-              <div className="flex flex-col space-y-4">
-                <div className="font-bold text-blue-500 mt-8">Location</div>
-                <InputField
-                  value={productLocation?.address}
-                  handleChange={handleLocationChange}
-                  id="address"
-                  label="Street address"
-                  isRequired={true}
-                />
-                <div className="flex items-center justify-start space-x-4">
+          {/* default modal state  */}
+          {itemCreationStatus === null && (
+            <div className="flex flex-col space-y-4">
+              <h1 className="text-2xl text-white font-bold">New Product</h1>
+              <form
+                className="flex flex-col space-y-4 mt-8"
+                onSubmit={handleCreateProduct}
+              >
+                <div className="flex flex-col space-y-4">
+                  <div className="font-bold text-blue-500 mt-4">
+                    Basic information
+                  </div>
+                  {/* name  */}
                   <InputField
-                    value={productLocation?.city}
-                    handleChange={handleLocationChange}
-                    id="city"
-                    label="City"
+                    value={name}
+                    handleChange={handleNameChange}
+                    id="name"
+                    label="Name"
                     isRequired={true}
                   />
 
-                  <InputField
-                    value={productLocation?.state}
-                    handleChange={handleLocationChange}
-                    id="state"
-                    label="State"
-                  />
-                  <InputField
-                    value={productLocation?.country}
-                    handleChange={handleLocationChange}
-                    id="country"
-                    label="Country"
+                  {/* description  */}
+                  <TextArea
+                    value={description}
+                    handleChange={handleDescriptionChange}
+                    id="description"
+                    label="Description"
                   />
                 </div>
-              </div>
 
-              {/* CTAs  */}
-              <div className="flex items-center justify-end space-x-4 pt-8">
+                {/* price, color, and quantity  */}
+                <div className="flex items-center justify-start space-x-6 mt-2">
+                  <InputField
+                    value={price.toString()}
+                    handleChange={handlePriceChange}
+                    id="price"
+                    label="Price (USD)"
+                    isRequired={true}
+                    type="number"
+                  />
+
+                  <InputField
+                    value={color}
+                    handleChange={handleColorChange}
+                    id="color"
+                    label="Color"
+                  />
+
+                  <InputField
+                    value={quantity.toString()}
+                    handleChange={handleQuantityChange}
+                    id="quantity"
+                    label="Quantity"
+                    type="number"
+                    isRequired={true}
+                  />
+                </div>
+
+                {/* shelf life, safety stock and weight  */}
+                <div className="flex items-center justify-start space-x-6 mt-2">
+                  <InputField
+                    value={shelfLife.toString()}
+                    handleChange={handleShelfLifeChange}
+                    id="shelfLife"
+                    label="Shelf life (days)"
+                    type="number"
+                  />
+
+                  <InputField
+                    value={safetyStock.toString()}
+                    handleChange={handleSafetyStockChange}
+                    id="safetyStock"
+                    label="Safety stock"
+                    type="number"
+                  />
+                </div>
+
+                {/* location  */}
+                <div className="flex flex-col space-y-4">
+                  <div className="font-bold text-blue-500 mt-8">Location</div>
+                  <InputField
+                    value={productLocation?.address}
+                    handleChange={handleLocationChange}
+                    id="address"
+                    label="Street address"
+                    isRequired={true}
+                  />
+                  <div className="flex items-center justify-start space-x-4">
+                    <InputField
+                      value={productLocation?.city}
+                      handleChange={handleLocationChange}
+                      id="city"
+                      label="City"
+                      isRequired={true}
+                    />
+
+                    <InputField
+                      value={productLocation?.postalCode}
+                      handleChange={handleLocationChange}
+                      id="postalCode"
+                      label="Postal code"
+                    />
+                    <InputField
+                      value={productLocation?.country}
+                      handleChange={handleLocationChange}
+                      id="country"
+                      label="Country"
+                    />
+                  </div>
+                </div>
+
+                {/* CTAs  */}
+                <div className="flex items-center justify-end space-x-4 pt-8">
+                  <button
+                    onClick={discardForm}
+                    className="text-blue-200 underline hover:text-blue-100 transition-all duration-300 ease-in-out"
+                  >
+                    Discard
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-8 py-3 bg-blue-500 hover:bg-blue-300 rounded-full transition-all duration-300 ease-in-out flex items-center justify-center"
+                  >
+                    <span className="text-white font-bold text-lg">Create</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+          )}
+
+          {/* success modal state  */}
+          {itemCreationStatus === ProgressStatus.Completed && (
+            <div className="flex flex-col space-y-8 items-center justify-center">
+              <SuccessIcon size={72} />
+              <div className="text-blue-100 font-bold text-xl">
+                Product created successfully
+              </div>
+            </div>
+          )}
+
+          {/* failed modal state  */}
+          {itemCreationStatus === ProgressStatus.Failed && (
+            <div className="flex flex-col space-y-8 items-center justify-center">
+              <ErrorIcon size={72} />
+              <div className="text-blue-100 font-bold text-xl">
+                We could not create your product
+              </div>
+              <div className="flex items-center justify-end space-x-4">
                 <button
                   onClick={discardForm}
                   className="text-blue-200 underline hover:text-blue-100 transition-all duration-300 ease-in-out"
                 >
-                  Discard
+                  Cancel
                 </button>
                 <button
-                  type="submit"
                   className="px-8 py-3 bg-blue-500 hover:bg-blue-300 rounded-full transition-all duration-300 ease-in-out flex items-center justify-center"
+                  onClick={createNewProduct}
                 >
-                  <span className="text-white font-bold text-lg">Create</span>
+                  <span className="text-white font-bold text-lg">Retry</span>
                 </button>
               </div>
-            </form>
-          </div>
+            </div>
+          )}
+
+          {/* pending modal state  */}
+          {itemCreationStatus === ProgressStatus.InProgress && (
+            <div className="flex flex-col space-y-8 items-center justify-center">
+              <SpinnerIcon color="#7C5DFA" size={72} />
+              <div className="text-blue-100 font-bold text-xl">
+                Creating your product
+              </div>
+            </div>
+          )}
         </Modal>
       </div>
     </main>

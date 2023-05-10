@@ -1,9 +1,10 @@
-import { products } from "@/products";
 import { ProductCard } from "@/components/productCard";
 import { Product } from "@/types";
-export const ProductsList: React.FC<{ products: Product[] }> = ({
-  products,
-}) => {
+import { Dispatch, SetStateAction } from "react";
+export const ProductsList: React.FC<{
+  products: Product[];
+  setActiveProduct: Dispatch<SetStateAction<Product | null>>;
+}> = ({ products, setActiveProduct }) => {
   return (
     <div className="space-y-2">
       {/* column headers  */}
@@ -12,14 +13,14 @@ export const ProductsList: React.FC<{ products: Product[] }> = ({
         <div className="text-blue-500">Reference</div>
         <div className="text-blue-500">Created On</div>
         <div className="text-blue-500">Price</div>
-        <div className="text-blue-500">Weight</div>
+        <div className="text-blue-500 text-left">Quantity</div>
       </div>
       <div className="space-y-4">
         {products.map((product) => {
           return (
-            <div key={product.id}>
+            <button key={product.id} onClick={() => setActiveProduct(product)}>
               <ProductCard product={product} />
-            </div>
+            </button>
           );
         })}
       </div>

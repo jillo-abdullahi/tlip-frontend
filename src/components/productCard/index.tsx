@@ -6,11 +6,11 @@ import { GradientAvatar } from "@/components/gradientAvatar";
 export const ProductCard: React.FC<{
   product: Product;
 }> = ({ product }) => {
-  const { id, name, skucode, price, weight, createdon } = product;
+  const { id, name, skucode, price, weight, createdon, quantity } = product;
   const creationDate = moment(new Date(createdon)).format("MMMM Do, YYYY");
 
   return (
-    <button className="w-full border border-transparent bg-blue-700 grid grid-cols-6 gap-2 p-6 rounded-xl hover:border-blue-300">
+    <div className="w-full border border-transparent bg-blue-700 grid grid-cols-6 gap-2 p-6 rounded-xl hover:border-blue-300">
       {/* avatar and product name  */}
       <div className="flex items-center justify-start space-x-3 col-span-2">
         <div className="flex items-center justify-start">
@@ -34,17 +34,20 @@ export const ProductCard: React.FC<{
 
       {/* price in usd  */}
       <ColumnItem>
-        <span className="text-white font-bold">
-          {price ? `USD ${price.toLocaleString()}` : "-"}
-        </span>
+        <div className="flex items-center justify-start space-x-1 font-bold">
+          <span className="text-blue-200 text-sm">USD</span>
+          <span className="text-white font-bold">
+            {price ? price.toLocaleString() : "-"}
+          </span>
+        </div>
       </ColumnItem>
 
       {/* weight  */}
       <ColumnItem>
         <span className="text-blue-100 font-bold">
-          {weight ? `${weight.toLocaleString()} Kg` : "-"}
+          {quantity ? `${quantity.toLocaleString()}` : "-"}
         </span>
       </ColumnItem>
-    </button>
+    </div>
   );
 };

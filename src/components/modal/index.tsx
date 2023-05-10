@@ -1,10 +1,10 @@
-import { Dispatch, Fragment, SetStateAction } from "react";
+import React, { Dispatch, Fragment, SetStateAction } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 
 export const Modal: React.FC<{
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
-  children: JSX.Element;
+  children: React.ReactNode;
 }> = ({ open, setOpen, children }) => {
   return (
     <Transition.Root show={open} as={Fragment}>
