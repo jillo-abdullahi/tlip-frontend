@@ -16,7 +16,7 @@ export const ProductCard: React.FC<{
         <div className="flex items-center justify-start">
           <GradientAvatar uuid={skucode} dimensions="40px" />
         </div>
-        <div className="text-white">{name}</div>
+        <div className="text-white text-left">{name}</div>
       </div>
 
       {/* product id  */}

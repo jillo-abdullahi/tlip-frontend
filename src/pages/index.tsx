@@ -16,13 +16,15 @@ import { EventStatus, Product, ProgressStatus } from "@/types";
 import { SpinnerIcon } from "@/components/icons/spinner";
 import { ErrorIcon } from "@/components/icons/error";
 import { SuccessIcon } from "@/components/icons/success";
+import { GradientAvatar } from "@/components/gradientAvatar";
+import moment from "moment";
 
 const BASE_API_URL = "http://localhost:3000";
 
 export default function Home() {
   const [productsList, setProductsList] = useState<Product[]>([]);
   const [activeProduct, setActiveProduct] = useState<Product | null>(null);
-  const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [createOrEditModalOpen, setCreateOrEditModalOpen] = useState(false);
 
   // product details
   const [name, setName] = useState("");
@@ -39,13 +41,21 @@ export default function Home() {
   const [shelfLife, setShelfLife] = useState(0);
   const [safetyStock, setSafetyStock] = useState(0);
 
-  // loading progress for create item
-  const [itemCreationStatus, setItemCreationStatus] =
+  // loading progress for create or edit item
+  const [itemCreationOrEditStatus, setItemCreationOrEditStatus] =
     useState<ProgressStatus | null>(null);
+
+  // loading progress for editing item
+  const [itemEditStatus, setItemEditStatus] = useState<ProgressStatus | null>(
+    null
+  );
 
   // loading progress for fetching products
   const [fetchProductsStatus, setFetchProductsStatus] =
     useState<ProgressStatus | null>(null);
+
+  // edit product states
+  const [isEditingProduct, setIsEditingProduct] = useState(false);
 
   const createNewProduct = (): void => {
     const newItem = {
@@ -71,23 +81,75 @@ export default function Home() {
     })
       .then((response) => {
         if (!response.ok) {
-          setItemCreationStatus(ProgressStatus.Failed);
+          setItemCreationOrEditStatus(ProgressStatus.Failed);
         }
         return response.json();
       })
       .then((data) => {
-        setItemCreationStatus(ProgressStatus.Completed);
+        setItemCreationOrEditStatus(ProgressStatus.Completed);
 
         // refetch products
         fetchProducts();
       })
       .catch((error) => {
-        setItemCreationStatus(ProgressStatus.Failed);
+        setItemCreationOrEditStatus(ProgressStatus.Failed);
       });
   };
 
-  const fetchProducts = (): void => {
-    fetch(`${BASE_API_URL}/items`)
+  const updateProduct = (e: any): void => {
+    e.preventDefault();
+    const updatedItem = {
+      name,
+      description,
+      price,
+      quantity,
+      color,
+      city: productLocation.city,
+      country: productLocation.country,
+      postalCode: productLocation.postalCode,
+      address: productLocation.address,
+      shelfLife,
+      safetyStock,
+    };
+
+    console.log(updatedItem);
+
+    fetch(`${BASE_API_URL}/items/${activeProduct?.id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(updatedItem),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          setItemCreationOrEditStatus(ProgressStatus.Failed);
+        }
+        return response.json();
+      })
+      .then((data) => {
+        // in case payload is not valid
+        if (data.error) {
+          setItemCreationOrEditStatus(ProgressStatus.Failed);
+        } else {
+          setItemCreationOrEditStatus(ProgressStatus.Completed);
+
+          // refetch products
+          fetchProducts(activeProduct?.id);
+        }
+      })
+      .catch((error) => {
+        setItemCreationOrEditStatus(ProgressStatus.Failed);
+      });
+  };
+
+  const fetchProducts = (id?: string): void => {
+    let url = `${BASE_API_URL}/items`;
+    if (id) {
+      url = `${BASE_API_URL}/items/${id}`;
+    }
+
+    fetch(url)
       .then((response) => {
         if (!response.ok) {
           setFetchProductsStatus(ProgressStatus.Failed);
@@ -95,7 +157,12 @@ export default function Home() {
         return response.json();
       })
       .then((data) => {
-        setProductsList(data);
+        console.log(data);
+        if (id) {
+          setActiveProduct(data);
+        } else {
+          setProductsList(data);
+        }
         setFetchProductsStatus(ProgressStatus.Completed);
       })
       .catch((error) => {
@@ -106,17 +173,16 @@ export default function Home() {
   };
 
   const closeCreateModal = (): void => {
-    setCreateModalOpen(false);
-    setItemCreationStatus(null);
+    setCreateOrEditModalOpen(false);
+    setItemCreationOrEditStatus(null);
+    setIsEditingProduct(false);
     clearForm();
   };
-
-  console.log({ itemCreationStatus });
 
   const handleCreateProduct = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    setItemCreationStatus(ProgressStatus.InProgress);
+    setItemCreationOrEditStatus(ProgressStatus.InProgress);
     createNewProduct();
   };
 
@@ -131,11 +197,11 @@ export default function Home() {
   };
 
   const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPrice(parseInt(e.target.value));
+    setPrice(parseFloat(e.target.value));
   };
 
   const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setQuantity(parseInt(e.target.value));
+    setQuantity(parseFloat(e.target.value));
   };
 
   const handleColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -190,6 +256,25 @@ export default function Home() {
     fetchProducts();
   }, []);
 
+  // set field values when editing
+  useEffect(() => {
+    if (activeProduct != null && createOrEditModalOpen && isEditingProduct) {
+      setName(activeProduct.name ?? "");
+      setDescription(activeProduct?.description ?? "");
+      setPrice((activeProduct?.price && +activeProduct?.price) ?? 0);
+      setQuantity(activeProduct.quantity ?? 0);
+      setColor(activeProduct.color ?? "");
+      setProductLocation({
+        city: activeProduct.city ?? "",
+        country: activeProduct.country ?? "",
+        postalCode: activeProduct.postalcode ?? "",
+        address: activeProduct.address ?? "",
+      });
+      setShelfLife(activeProduct.shelflife ?? 0);
+      setSafetyStock(activeProduct.safetystock ?? 0);
+    }
+  }, [activeProduct, createOrEditModalOpen, isEditingProduct]);
+
   return (
     <main className="flex relative w-full min-h-screen items-start justify-center">
       <Nav />
@@ -201,7 +286,7 @@ export default function Home() {
           {/* header section  */}
           {activeProduct == null && (
             <Header
-              setCreateModalOpen={setCreateModalOpen}
+              setCreateModalOpen={setCreateOrEditModalOpen}
               numberOfProducts={productsList.length}
             />
           )}
@@ -257,7 +342,10 @@ export default function Home() {
               <div className="flex w-full items-center justify-start">
                 <button
                   className="flex space-x-6 items-center w-fit"
-                  onClick={() => setActiveProduct(null)}
+                  onClick={() => {
+                    fetchProducts();
+                    setActiveProduct(null);
+                  }}
                 >
                   <Image
                     src="/images/icon-left-carat.svg"
@@ -274,20 +362,28 @@ export default function Home() {
                 {/* top action section  */}
                 <div className="flex w-full items-center justify-between bg-blue-700 rounded-lg px-8 py-6">
                   <div className="flex items-center justify-start space-x-2">
-                    <div className="rounded-full bg-red-300 w-12 h-12"></div>
+                    <GradientAvatar
+                      uuid={activeProduct?.skucode}
+                      dimensions="50px"
+                    />
                     <div className="flex flex-col">
                       <div className="font-bold text-xl">
                         <span className="text-blue-200">#</span>
-                        <span className="text-white">898998</span>
+                        <span className="text-white uppercase">
+                          {activeProduct?.skucode.split("-")[0]}
+                        </span>
                       </div>
-                      <div className="text-blue-100">Product 1</div>
+                      <div className="text-blue-100">{activeProduct?.name}</div>
                     </div>
                   </div>
 
                   <div className="flex items-center justify-center space-x-2">
                     <Button
                       text="Edit"
-                      onClick={() => console.log("clicked")}
+                      onClick={() => {
+                        setCreateOrEditModalOpen(true);
+                        setIsEditingProduct(true);
+                      }}
                     />
                     <ButtonWithIcon
                       text="Add Event"
@@ -297,25 +393,78 @@ export default function Home() {
                 </div>
 
                 {/* product details card  */}
-                <div className="flex flex-col w-full space-y-4 bg-blue-700 rounded-lg px-8 py-6">
-                  <div className="font-bold text-blue-500 my-4">
-                    Product information
-                  </div>
+                <div className="flex flex-col w-full space-y-4 bg-blue-700 rounded-lg px-10 py-6">
                   {/* description  */}
-                  <ItemDetail
-                    title="Description"
-                    detail="This is a product description that can span multiple lines. This is a product description that can span multiple lines. This is a product description that can span multiple lines. This is a product description that can span multiple lines. This is a product description that can span multiple lines."
-                  />
+                  <div className="pb-4">
+                    {activeProduct?.description ? (
+                      <ItemDetail
+                        title="Description"
+                        detail={activeProduct?.description}
+                      />
+                    ) : null}
+                  </div>
 
-                  <div className="grid grid-cols-4 gap-6">
+                  <div className="grid grid-cols-3 gap-6 pb-4">
                     {/* created on  */}
-                    <ItemDetail title="Created On" detail="6th July 2024" />
+                    <ItemDetail
+                      title="Created On"
+                      detail={moment(new Date(activeProduct?.createdon)).format(
+                        "MMMM Do, YYYY"
+                      )}
+                    />
                     {/* price  */}
-                    <ItemDetail title="Price" detail="USD 4,000" />
-                    {/* weight  */}
-                    <ItemDetail title="Weight" detail="4.5kg" />
-                    {/* supplier  */}
-                    <ItemDetail title="Quantity" detail="400" />
+                    {activeProduct?.price ? (
+                      <ItemDetail
+                        title="Price (USD)"
+                        detail={activeProduct?.price.toLocaleString()}
+                      />
+                    ) : null}
+                    {/* color  */}
+                    {activeProduct?.color ? (
+                      <ItemDetail title="Color" detail={activeProduct?.color} />
+                    ) : null}
+
+                    {/* Quantity  */}
+                    {activeProduct?.quantity ? (
+                      <ItemDetail
+                        title="Quantity"
+                        detail={activeProduct?.quantity.toLocaleString()}
+                      />
+                    ) : null}
+
+                    {/* shelf life  */}
+                    {activeProduct?.shelflife ? (
+                      <ItemDetail
+                        title="Shelf Life"
+                        detail={activeProduct?.shelflife}
+                      />
+                    ) : null}
+
+                    {/* safety stock  */}
+                    {activeProduct?.safetystock ? (
+                      <ItemDetail
+                        title="Safety Stock"
+                        detail={activeProduct?.safetystock.toLocaleString()}
+                      />
+                    ) : null}
+
+                    {/* location  */}
+                    {activeProduct?.address ||
+                    activeProduct?.city ||
+                    activeProduct?.country ||
+                    activeProduct?.postalcode ? (
+                      <ItemDetail
+                        title="Location"
+                        detail={
+                          <span>
+                            {activeProduct?.address ?? ""} <br />
+                            {activeProduct?.city ?? ""} <br />
+                            {activeProduct?.country ?? ""} <br />
+                            {activeProduct?.postalcode ?? ""}
+                          </span>
+                        }
+                      />
+                    ) : null}
                   </div>
 
                   {/* events  */}
@@ -337,23 +486,12 @@ export default function Home() {
                       </div>
                     </div>
 
-                    <ProductDetails />
-
                     {/* event details  */}
                     <div className="divide-y divide-gray-600">
-                      <div className="grid grid-cols-10 gap-3 py-2">
+                      <div className="grid grid-cols-5 gap-3 py-2">
                         <div className="text-sm text-white">6th July 2024</div>
                         <div className="text-white">Shipment</div>
                         <div className="text-white">Custodian 1</div>
-                        <div className="text-white">
-                          <EventStatusBadge eventStatus={EventStatus.Transit} />
-                        </div>
-                        <div className="text-white">
-                          <EventStatusBadge eventStatus={EventStatus.Transit} />
-                        </div>
-                        <div className="text-white">
-                          <EventStatusBadge eventStatus={EventStatus.Transit} />
-                        </div>
                         <div className="text-white">
                           <EventStatusBadge eventStatus={EventStatus.Transit} />
                         </div>
@@ -367,14 +505,27 @@ export default function Home() {
         </div>
 
         {/* product creation modal  */}
-        <Modal open={createModalOpen} setOpen={closeCreateModal}>
+        <Modal open={createOrEditModalOpen} setOpen={closeCreateModal}>
           {/* default modal state  */}
-          {itemCreationStatus === null && (
+          {itemCreationOrEditStatus === null && (
             <div className="flex flex-col space-y-4">
-              <h1 className="text-2xl text-white font-bold">New Product</h1>
+              <h1 className="text-2xl text-white font-bold">
+                {isEditingProduct ? (
+                  <span>
+                    Edit <span className="text-blue-200">#</span>
+                    <span className="text-white uppercase">
+                      {activeProduct?.skucode.split("-")[0]}
+                    </span>
+                  </span>
+                ) : (
+                  "New Product"
+                )}
+              </h1>
               <form
                 className="flex flex-col space-y-4 mt-8"
-                onSubmit={handleCreateProduct}
+                onSubmit={
+                  isEditingProduct ? updateProduct : handleCreateProduct
+                }
               >
                 <div className="flex flex-col space-y-4">
                   <div className="font-bold text-blue-500 mt-4">
@@ -387,6 +538,7 @@ export default function Home() {
                     id="name"
                     label="Name"
                     isRequired={true}
+                    defaultValue={activeProduct?.name}
                   />
 
                   {/* description  */}
@@ -401,7 +553,7 @@ export default function Home() {
                 {/* price, color, and quantity  */}
                 <div className="flex items-center justify-start space-x-6 mt-2">
                   <InputField
-                    value={price.toString()}
+                    value={price}
                     handleChange={handlePriceChange}
                     id="price"
                     label="Price (USD)"
@@ -417,7 +569,7 @@ export default function Home() {
                   />
 
                   <InputField
-                    value={quantity.toString()}
+                    value={quantity}
                     handleChange={handleQuantityChange}
                     id="quantity"
                     label="Quantity"
@@ -491,7 +643,9 @@ export default function Home() {
                     type="submit"
                     className="px-8 py-3 bg-blue-500 hover:bg-blue-300 rounded-full transition-all duration-300 ease-in-out flex items-center justify-center"
                   >
-                    <span className="text-white font-bold text-lg">Create</span>
+                    <span className="text-white font-bold text-lg">
+                      {isEditingProduct ? "Save changes" : "Create"}
+                    </span>
                   </button>
                 </div>
               </form>
@@ -499,11 +653,13 @@ export default function Home() {
           )}
 
           {/* success modal state  */}
-          {itemCreationStatus === ProgressStatus.Completed && (
+          {itemCreationOrEditStatus === ProgressStatus.Completed && (
             <div className="flex flex-col space-y-8 items-center justify-center">
               <SuccessIcon size={72} />
               <div className="text-blue-100 font-bold text-xl">
-                Product created successfully
+                {isEditingProduct
+                  ? "Changes successfully saved"
+                  : "Product created successfully"}
               </div>
               <button
                 className="px-8 py-3 bg-blue-500 hover:bg-blue-300 rounded-full transition-all duration-300 ease-in-out flex items-center justify-center"
@@ -515,11 +671,13 @@ export default function Home() {
           )}
 
           {/* failed modal state  */}
-          {itemCreationStatus === ProgressStatus.Failed && (
+          {itemCreationOrEditStatus === ProgressStatus.Failed && (
             <div className="flex flex-col space-y-8 items-center justify-center">
               <ErrorIcon size={72} />
               <div className="text-blue-100 font-bold text-xl">
-                We could not create your product
+                {isEditingProduct
+                  ? "We could not save your changes"
+                  : "We could not create your product"}
               </div>
               <div className="flex items-center justify-end space-x-4">
                 <button
@@ -530,7 +688,7 @@ export default function Home() {
                 </button>
                 <button
                   className="px-8 py-3 bg-blue-500 hover:bg-blue-300 rounded-full transition-all duration-300 ease-in-out flex items-center justify-center"
-                  onClick={createNewProduct}
+                  onClick={isEditingProduct ? updateProduct : createNewProduct}
                 >
                   <span className="text-white font-bold text-lg">Retry</span>
                 </button>
@@ -539,11 +697,13 @@ export default function Home() {
           )}
 
           {/* pending modal state  */}
-          {itemCreationStatus === ProgressStatus.InProgress && (
+          {itemCreationOrEditStatus === ProgressStatus.InProgress && (
             <div className="flex flex-col space-y-8 items-center justify-center">
               <SpinnerIcon color="#7C5DFA" size={72} />
               <div className="text-blue-100 font-bold text-xl">
-                Creating your product
+                {isEditingProduct
+                  ? "Applying your changes"
+                  : "Creating your product"}
               </div>
             </div>
           )}

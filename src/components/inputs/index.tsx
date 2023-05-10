@@ -1,12 +1,13 @@
 interface InputFieldProps {
   handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   placeholder?: string;
-  value: string;
+  value: string | number;
   error?: string;
   id: string;
   isRequired?: boolean;
   label: string;
   type?: string;
+  defaultValue?: string;
 }
 export const InputField: React.FC<InputFieldProps> = ({
   handleChange,
@@ -17,6 +18,7 @@ export const InputField: React.FC<InputFieldProps> = ({
   isRequired,
   label,
   type = "text",
+  defaultValue,
 }) => {
   return (
     <div className="relative w-full">
@@ -36,6 +38,7 @@ export const InputField: React.FC<InputFieldProps> = ({
         value={value}
         id={id}
         required={isRequired}
+        defaultValue={defaultValue}
       />
 
       {error && (

@@ -33,11 +33,11 @@ export interface Product {
   price?: number;
   description?: string;
   city?: string;
-  postalCode?: string;
+  postalcode?: string;
   address?: string;
   quantity?: number;
-  shelfLife?: number;
-  safetyStock?: number;
+  shelflife?: number;
+  safetystock?: number;
   country?: string;
   weight?: number;
 }
