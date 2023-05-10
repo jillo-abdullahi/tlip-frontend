@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Head from "next/head";
 import Image from "next/image";
 import { Header } from "@/components/header";
@@ -10,10 +10,14 @@ import { ProductsList } from "@/containers/ProductsList";
 import { Location, Custodian } from "@/types";
 import { InputField, TextArea } from "@/components/inputs";
 import { Modal } from "@/components/modal";
+import { ItemDetail } from "@/components/itemDetail";
+import { Button, ButtonWithIcon } from "@/components/buttons";
+import { EventStatusBadge } from "@/components/eventStatusBadge";
+import { EventStatus } from "@/types";
 
 export default function Home() {
-  const [productsList, setProductsList] = useState(products);
-  const [activeProduct, setActiveProduct] = useState(products[0]);
+  const [productsList, setProductsList] = useState([]);
+  const [activeProduct, setActiveProduct] = useState(null);
   const [createModalOpen, setCreateModalOpen] = useState(false);
 
   // product details
@@ -31,13 +35,8 @@ export default function Home() {
   const [shelfLife, setShelfLife] = useState(0);
   const [safetyStock, setSafetyStock] = useState(0);
   const [weight, setWeight] = useState(0);
-  // const [custodian, setCustodian] = useState<Custodian>({
-  //   name: "",
-  //   email: "",
-  //   phone: "",
-  //   address: "",
-  // });
 
+  // change handlers for creating item
   const handleCreateProduct = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
   };
@@ -95,6 +94,18 @@ export default function Home() {
     setCreateModalOpen(false);
   };
 
+  const API_URL = "http://localhost:3000/items";
+  // fetch all items to display
+  useEffect(() => {
+    fetch(API_URL)
+      .then((res) => res.json())
+      .then((data) => {
+        setProductsList(data);
+      });
+  }, []);
+
+  console.log(productsList);
+
   return (
     <main className="flex relative w-full min-h-screen items-start justify-center">
       <Nav />
@@ -111,7 +122,7 @@ export default function Home() {
           {/* list of products */}
           {productsList.length > 0 && activeProduct == null && (
             <div className="mt-14">
-              <ProductsList />
+              <ProductsList products={productsList} />
             </div>
           )}
           {productsList.length === 0 && (
@@ -135,13 +146,103 @@ export default function Home() {
               </div>
 
               {/* product details card  */}
-              <ProductDetails />
+              <div className="flex flex-col space-y-4 items-center">
+                {/* top action section  */}
+                <div className="flex w-full items-center justify-between bg-blue-700 rounded-lg px-8 py-6">
+                  <div className="flex items-center justify-start space-x-2">
+                    <div className="rounded-full bg-red-300 w-12 h-12"></div>
+                    <div className="flex flex-col">
+                      <div className="font-bold text-xl">
+                        <span className="text-blue-200">#</span>
+                        <span className="text-white">898998</span>
+                      </div>
+                      <div className="text-blue-100">Product 1</div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-center space-x-2">
+                    <Button
+                      text="Edit"
+                      onClick={() => console.log("clicked")}
+                    />
+                    <ButtonWithIcon
+                      text="Add Event"
+                      onClick={() => console.log("clicked")}
+                    />
+                  </div>
+                </div>
+
+                {/* product details card  */}
+                <div className="flex flex-col w-full space-y-4 bg-blue-700 rounded-lg px-8 py-6">
+                  <div className="font-bold text-blue-500 my-4">
+                    Product information
+                  </div>
+                  {/* description  */}
+                  <ItemDetail
+                    title="Description"
+                    detail="This is a product description that can span multiple lines. This is a product description that can span multiple lines. This is a product description that can span multiple lines. This is a product description that can span multiple lines. This is a product description that can span multiple lines."
+                  />
+
+                  <div className="grid grid-cols-4 gap-6">
+                    {/* created on  */}
+                    <ItemDetail title="Created On" detail="6th July 2024" />
+                    {/* price  */}
+                    <ItemDetail title="Price" detail="USD 4,000" />
+                    {/* weight  */}
+                    <ItemDetail title="Weight" detail="4.5kg" />
+                    {/* supplier  */}
+                    <ItemDetail title="Quantity" detail="400" />
+                  </div>
+
+                  {/* events  */}
+                  <div className="font-bold text-blue-500 my-4">Events</div>
+                  <div className="rounded-lg p-8 w-full bg-blue-600 space-y-4">
+                    {/* header titles  */}
+                    <div className="grid grid-cols-4 gap-3">
+                      <div className="text-sm text-blue-100 font-normal">
+                        Created on
+                      </div>
+                      <div className="text-sm text-blue-100 font-normal">
+                        Type
+                      </div>
+                      <div className="text-sm text-blue-100 font-normal">
+                        Custodian
+                      </div>
+                      <div className="text-sm text-blue-100 font-normal">
+                        Status
+                      </div>
+                    </div>
+
+                    <ProductDetails />
+
+                    {/* event details  */}
+                    <div className="divide-y divide-gray-600">
+                      <div className="grid grid-cols-10 gap-3 py-2">
+                        <div className="text-sm text-white">6th July 2024</div>
+                        <div className="text-white">Shipment</div>
+                        <div className="text-white">Custodian 1</div>
+                        <div className="text-white">
+                          <EventStatusBadge eventStatus={EventStatus.Transit} />
+                        </div>
+                        <div className="text-white">
+                          <EventStatusBadge eventStatus={EventStatus.Transit} />
+                        </div>
+                        <div className="text-white">
+                          <EventStatusBadge eventStatus={EventStatus.Transit} />
+                        </div>
+                        <div className="text-white">
+                          <EventStatusBadge eventStatus={EventStatus.Transit} />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
         </div>
 
         {/* product creation modal  */}
-
         <Modal open={createModalOpen} setOpen={setCreateModalOpen}>
           <div className="flex flex-col space-y-4">
             <h1 className="text-2xl text-white font-bold">New Product</h1>
@@ -256,42 +357,6 @@ export default function Home() {
                   />
                 </div>
               </div>
-
-              {/* custodian  */}
-              {/* <div className="flex flex-col space-y-4">
-                <div className="font-bold text-blue-500 mt-8">Custodian</div>
-                <InputField
-                  value={custodian?.name}
-                  handleChange={handleCustodianChange}
-                  id="name"
-                  label="Name"
-                  isRequired={true}
-                />
-                <InputField
-                  value={custodian?.address}
-                  handleChange={handleCustodianChange}
-                  id="address"
-                  label="Street address"
-                />
-
-                <div className="flex items-center justify-start space-x-4">
-                  <InputField
-                    value={custodian?.email}
-                    handleChange={handleCustodianChange}
-                    id="email"
-                    label="Email"
-                    isRequired={true}
-                    type="email"
-                  />
-                  <InputField
-                    value={custodian?.phone}
-                    handleChange={handleCustodianChange}
-                    id="phone"
-                    label="Phone"
-                    type="tel"
-                  />
-                </div>
-              </div> */}
 
               {/* CTAs  */}
               <div className="flex items-center justify-end space-x-4 pt-8">

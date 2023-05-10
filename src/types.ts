@@ -23,3 +23,21 @@ export enum EventStatus {
   Instock = "Instock",
   Delivered = "Delivered",
 }
+
+export interface Product {
+  id: string;
+  skucode: string;
+  createdon: string;
+  name: string;
+  color?: string;
+  price?: number;
+  description?: string;
+  city?: string;
+  postalCode?: string;
+  address?: string;
+  quantity?: number;
+  shelfLife?: number;
+  safetyStock?: number;
+  country?: string;
+  weight?: number;
+}

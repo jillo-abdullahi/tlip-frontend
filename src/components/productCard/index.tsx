@@ -1,32 +1,50 @@
-import Image from "next/image";
+import moment from "moment";
+import { ColumnItem } from "@/components/columnItem";
+import { Product } from "@/types";
+import { GradientAvatar } from "@/components/gradientAvatar";
 
-export const ProductCard: React.FC = () => {
+export const ProductCard: React.FC<{
+  product: Product;
+}> = ({ product }) => {
+  const { id, name, skucode, price, weight, createdon } = product;
+  const creationDate = moment(new Date(createdon)).format("MMMM Do, YYYY");
+
   return (
-    <div className="w-full bg-blue-700 grid grid-cols-6 gap-4 p-6 rounded-lg">
+    <button className="w-full border border-transparent bg-blue-700 grid grid-cols-6 gap-2 p-6 rounded-xl hover:border-blue-300">
+      {/* avatar and product name  */}
+      <div className="flex items-center justify-start space-x-3 col-span-2">
+        <div className="flex items-center justify-start">
+          <GradientAvatar uuid={skucode} dimensions="40px" />
+        </div>
+        <div className="text-white">{name}</div>
+      </div>
+
       {/* product id  */}
-      <div className="font-bold">
-        <span className="text-blue-200">#</span>
-        <span className="text-white">898998</span>
-      </div>
-      {/* product name  */}
-      <div className="text-white text-sm">Product 1</div>
+      <ColumnItem>
+        <div className="flex items-center justify-start font-bold">
+          <span className="text-blue-200">#</span>
+          <span className="text-white uppercase">{skucode.split("-")[0]}</span>
+        </div>
+      </ColumnItem>
+
       {/* created on  */}
-      <div className="text-blue-100 text-sm">6th July 2024</div>
+      <ColumnItem>
+        <span className="text-blue-100">{creationDate}</span>
+      </ColumnItem>
+
       {/* price in usd  */}
-      <div className="text-white font-bold">USD 4,000</div>
+      <ColumnItem>
+        <span className="text-white font-bold">
+          {price ? `USD ${price.toLocaleString()}` : "-"}
+        </span>
+      </ColumnItem>
+
       {/* weight  */}
-      <div className="text-blue-100 font-bold">4.5kg</div>
-      {/* right facing carat  */}
-      <div className="flex items-center justify-end">
-        <button onClick={() => console.log("clicked")} className="w-fit h-fit">
-          <Image
-            src="/images/icon-carat.svg"
-            alt="right facing carat"
-            width={10}
-            height={12}
-          />
-        </button>
-      </div>
-    </div>
+      <ColumnItem>
+        <span className="text-blue-100 font-bold">
+          {weight ? `${weight.toLocaleString()} Kg` : "-"}
+        </span>
+      </ColumnItem>
+    </button>
   );
 };
