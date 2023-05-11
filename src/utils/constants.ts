@@ -1,0 +1,1 @@
+export const BASE_API_URL = 'https://tlip-api.onrender.com';

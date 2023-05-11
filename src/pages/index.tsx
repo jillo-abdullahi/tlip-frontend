@@ -5,13 +5,13 @@ import { Header } from "@/components/header";
 import { EmptyState } from "@/components/emptyState";
 import { Nav } from "@/components/nav";
 import { ProductsList } from "@/containers/ProductsList";
-import { Location, ProductEvent } from "@/types";
+import { Location, ProductEvent } from "@/utils/types";
 import { InputField, TextArea } from "@/components/inputs";
 import { Modal } from "@/components/modal";
 import { ItemDetail } from "@/components/itemDetail";
 import { Button, ButtonWithIcon } from "@/components/buttons";
 import { EventStatusBadge } from "@/components/eventStatusBadge";
-import { EventStatus, Product, ProgressStatus } from "@/types";
+import { Product, ProgressStatus } from "@/utils/types";
 import { SpinnerIcon } from "@/components/icons/spinner";
 import { ErrorIcon } from "@/components/icons/error";
 import { SuccessIcon } from "@/components/icons/success";
@@ -19,8 +19,7 @@ import { GradientAvatar } from "@/components/gradientAvatar";
 import moment from "moment";
 import { CreateEventModal } from "@/containers/CreateEventModal";
 import { ColumnItem } from "@/components/columnItem";
-
-const BASE_API_URL = "http://localhost:3000";
+import { BASE_API_URL } from "@/utils/constants";
 
 export default function Home() {
   const [productsList, setProductsList] = useState<Product[]>([]);
@@ -116,8 +115,6 @@ export default function Home() {
       safetyStock,
     };
 
-    console.log(updatedItem);
-
     fetch(`${BASE_API_URL}/items/${activeProduct?.id}`, {
       method: "PUT",
       headers: {
@@ -161,11 +158,14 @@ export default function Home() {
         return response.json();
       })
       .then((data) => {
-        console.log(data);
         if (id) {
           setActiveProduct(data);
         } else {
-          setProductsList(data);
+          if (data.error) {
+            setProductsList([]);
+          } else {
+            setProductsList(data);
+          }
         }
         setFetchProductsStatus(ProgressStatus.Completed);
       })
@@ -299,7 +299,7 @@ export default function Home() {
     }
   }, [activeProduct]);
 
-  console.log({ productEvents });
+  console.log({ fetchProductsStatus, productsList });
 
   return (
     <main className="flex relative w-full min-h-screen items-start justify-center">
@@ -331,7 +331,7 @@ export default function Home() {
 
           {/* empty state for products list  */}
           {productsList.length === 0 &&
-            fetchProductsStatus !== ProgressStatus.Failed && (
+            fetchProductsStatus === ProgressStatus.Completed && (
               <div className="mt-16">
                 <EmptyState />
               </div>

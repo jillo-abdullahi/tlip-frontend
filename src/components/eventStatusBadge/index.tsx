@@ -1,4 +1,4 @@
-import { EventStatus } from "@/types";
+import { EventStatus } from "@/utils/types";
 
 export const EventStatusBadge: React.FC<{ eventStatus: EventStatus }> = ({
   eventStatus,

@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { useState, useRef, useEffect } from "react";
-import { EventType, EventStatus } from "@/types";
+import { EventType, EventStatus } from "@/utils/types";
 
 interface SelectInputProps {
   value: EventStatus | EventType;

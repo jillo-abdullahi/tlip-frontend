@@ -1,6 +1,6 @@
 import moment from "moment";
 import { ColumnItem } from "@/components/columnItem";
-import { Product } from "@/types";
+import { Product } from "@/utils/types";
 import { GradientAvatar } from "@/components/gradientAvatar";
 
 export const ProductCard: React.FC<{

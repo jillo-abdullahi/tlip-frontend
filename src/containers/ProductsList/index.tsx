@@ -1,5 +1,5 @@
 import { ProductCard } from "@/components/productCard";
-import { Product } from "@/types";
+import { Product } from "@/utils/types";
 import { Dispatch, SetStateAction } from "react";
 export const ProductsList: React.FC<{
   products: Product[];

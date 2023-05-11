@@ -1,14 +1,13 @@
 import { Modal } from "@/components/modal";
-import { ProgressStatus } from "@/types";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
-import { Product, EventType, EventStatus } from "@/types";
+import { ProgressStatus } from "@/utils/types";
+import { Dispatch, SetStateAction, useState } from "react";
+import { Product, EventType, EventStatus } from "@/utils/types";
 import { InputField, TextArea } from "@/components/inputs";
 import { SelectInput } from "@/components/selectInput";
 import SuccessIcon from "@/components/icons/success";
 import ErrorIcon from "@/components/icons/error";
 import SpinnerIcon from "@/components/icons/spinner";
-
-const BASE_API_URL = "http://localhost:3000";
+import { BASE_API_URL } from "@/utils/constants";
 
 export const CreateEventModal: React.FC<{
   open: boolean;
