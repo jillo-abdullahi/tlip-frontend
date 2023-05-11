@@ -61,6 +61,7 @@ export default function Home() {
   const [createEventModalOpen, setCreateEventModalOpen] = useState(false);
 
   const createNewProduct = (): void => {
+    setItemCreationOrEditStatus(ProgressStatus.InProgress);
     const newItem = {
       name,
       description,
@@ -99,8 +100,7 @@ export default function Home() {
       });
   };
 
-  const updateProduct = (e: React.FormEvent<HTMLFormElement>): void => {
-    e.preventDefault();
+  const updateProduct = (): void => {
     setItemCreationOrEditStatus(ProgressStatus.InProgress);
     const updatedItem = {
       name,
@@ -205,9 +205,12 @@ export default function Home() {
 
   const handleCreateProduct = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    setItemCreationOrEditStatus(ProgressStatus.InProgress);
     createNewProduct();
+  };
+
+  const handleUpdateProduct = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    updateProduct();
   };
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -597,7 +600,7 @@ export default function Home() {
               <form
                 className="flex flex-col space-y-4 mt-8"
                 onSubmit={
-                  isEditingProduct ? updateProduct : handleCreateProduct
+                  isEditingProduct ? handleUpdateProduct : handleCreateProduct
                 }
               >
                 <div className="flex flex-col space-y-4">

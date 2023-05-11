@@ -19,15 +19,18 @@ export const SelectInput: React.FC<SelectInputProps> = ({
   setValue,
   dropdownOptions,
 }) => {
-  const dropdownRef = useRef(null);
+  // const dropdownRef = useRef(null);
+  const dropdownRef = useRef<HTMLDivElement | null>(null);
+
   const [showDropdown, setShowDropdown] = useState(false);
-  const [activeOption, setActiveOption] = useState(value);
+  const [activeOption, setActiveOption] = useState<string>(value);
 
   // add event listener to close dropdown when clicked outside
-  const handleClickOutside = (event: any) => {
+  const handleClickOutside = (event: MouseEvent) => {
     if (
       dropdownRef.current &&
       showDropdown &&
+      event.target instanceof Node &&
       !dropdownRef.current?.contains(event.target)
     ) {
       setShowDropdown(false);
@@ -39,7 +42,6 @@ export const SelectInput: React.FC<SelectInputProps> = ({
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [showDropdown]);
-
 
   return (
     <div className="relative w-full" ref={dropdownRef}>
