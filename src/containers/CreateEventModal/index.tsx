@@ -14,7 +14,8 @@ export const CreateEventModal: React.FC<{
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
   activeProduct: Product | null;
-}> = ({ open, setOpen, activeProduct }) => {
+  fetchProductEvents: (id: string) => void;
+}> = ({ open, setOpen, activeProduct, fetchProductEvents }) => {
   const [createEventStatus, setCreateEventStatus] =
     useState<ProgressStatus | null>(null);
 
@@ -56,6 +57,10 @@ export const CreateEventModal: React.FC<{
   };
 
   const closeCreateModal = (): void => {
+    // refetch events if event was created successfully
+    if (createEventStatus === ProgressStatus.Completed) {
+      fetchProductEvents(activeProduct?.id as string);
+    }
     setEventType(EventType.Transfer);
     setEventStatus(EventStatus.Pending);
     setLocation("");

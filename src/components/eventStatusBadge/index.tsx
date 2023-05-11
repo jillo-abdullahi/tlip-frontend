@@ -6,17 +6,17 @@ export const EventStatusBadge: React.FC<{ eventStatus: EventStatus }> = ({
   // set the color of the badge based on the event status
   let color, bgColor;
   switch (eventStatus) {
-    case EventStatus.Transit:
+    case EventStatus.Pending:
       bgColor = "bg-yellow-500";
       color = "text-yellow-500";
       break;
-    case EventStatus.Delivered:
+    case EventStatus.Completed:
       bgColor = "bg-green-500";
       color = "text-green-500";
       break;
-    case EventStatus.Instock:
-      bgColor = "bg-green-600";
-      color = "text-green-600";
+    case EventStatus.Cancelled:
+      bgColor = "bg-red";
+      color = "text-red";
       break;
     default:
       break;

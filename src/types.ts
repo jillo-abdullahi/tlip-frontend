@@ -47,3 +47,14 @@ export enum ProgressStatus {
   Completed = "Completed",
   Failed = "Failed",
 }
+
+export interface ProductEvent {
+  id: string;
+  item_id: string;
+  eventtimestamp: string;
+  eventtype: EventType;
+  eventstatus: EventStatus;
+  location: string;
+  custodian: string;
+  notes: string;
+}
