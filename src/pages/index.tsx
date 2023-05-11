@@ -101,6 +101,7 @@ export default function Home() {
 
   const updateProduct = (e: React.FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
+    setItemCreationOrEditStatus(ProgressStatus.InProgress);
     const updatedItem = {
       name,
       description,
