@@ -303,8 +303,6 @@ export default function Home() {
     }
   }, [activeProduct]);
 
-  console.log({ fetchProductsStatus, productsList });
-
   return (
     <main className="flex relative w-full min-h-screen items-start justify-center">
       <Nav />
