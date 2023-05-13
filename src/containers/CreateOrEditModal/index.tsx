@@ -1,38 +1,29 @@
+import { Dispatch, SetStateAction } from "react";
+import { initialProductDetails } from "@/utils/constants";
 import { Modal } from "@/components/modal";
 import ErrorIcon from "@/components/icons/error";
 import { InputField, TextArea } from "@/components/inputs";
-import { Product, ProgressStatus, Location } from "@/utils/types";
+import { Product, ProgressStatus, NewProduct } from "@/utils/types";
 import SuccessIcon from "@/components/icons/success";
 import SpinnerIcon from "@/components/icons/spinner";
-import { Dispatch, SetStateAction } from "react";
 
 interface CreateOrEditModalProps {
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
   itemCreationOrEditStatus: ProgressStatus | null;
+  setItemCreationOrEditStatus: Dispatch<SetStateAction<ProgressStatus | null>>;
   isEditingProduct: boolean;
+  setIsEditingProduct: Dispatch<SetStateAction<boolean>>;
   activeProduct: Product | null;
-  name: string;
-  description: string;
-  price: number;
-  color: string;
-  quantity: number;
-  shelfLife: number;
-  safetyStock: number;
-  productLocation: Location;
-  handleNameChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  productDetails: NewProduct;
+  handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleDescriptionChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
-  handlePriceChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  handleColorChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  handleQuantityChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  handleShelfLifeChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  handleSafetyStockChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  handleLocationChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleCreateProduct: (e: React.FormEvent<HTMLFormElement>) => void;
   handleUpdateProduct: (e: React.FormEvent<HTMLFormElement>) => void;
   discardForm: (e: React.MouseEvent<HTMLButtonElement>) => void;
-  updateProduct: () => void;
-  createNewProduct: () => void;
+  updateProduct: (productDetails: NewProduct) => void;
+  createNewProduct: (productDetails: NewProduct) => void;
+  setProductDetails: Dispatch<SetStateAction<NewProduct>>;
 }
 
 export const CreateOrEditModal: React.FC<CreateOrEditModalProps> = ({
@@ -41,32 +32,26 @@ export const CreateOrEditModal: React.FC<CreateOrEditModalProps> = ({
   itemCreationOrEditStatus,
   isEditingProduct,
   activeProduct,
-  name,
-  description,
-  price,
-  color,
-  quantity,
-  shelfLife,
-  safetyStock,
-  productLocation,
-  handleNameChange,
-  handleDescriptionChange,
-  handlePriceChange,
-  handleColorChange,
-  handleQuantityChange,
-  handleShelfLifeChange,
-  handleSafetyStockChange,
-  handleLocationChange,
+  productDetails,
   handleCreateProduct,
   handleUpdateProduct,
   discardForm,
   createNewProduct,
   updateProduct,
+  setItemCreationOrEditStatus,
+  setIsEditingProduct,
+  handleInputChange,
+  handleDescriptionChange,
+  setProductDetails,
 }) => {
-  // close modal
+  // reset form on close
   const closeModal = () => {
+    setItemCreationOrEditStatus(null);
     setOpen(false);
+    setIsEditingProduct(false);
+    setProductDetails(initialProductDetails);
   };
+
   return (
     <Modal open={open} setOpen={setOpen}>
       {/* default modal state  */}
@@ -96,17 +81,16 @@ export const CreateOrEditModal: React.FC<CreateOrEditModalProps> = ({
               </div>
               {/* name  */}
               <InputField
-                value={name}
-                handleChange={handleNameChange}
+                value={productDetails?.name ?? ""}
+                handleChange={handleInputChange}
                 id="name"
                 label="Name"
                 isRequired={true}
-                defaultValue={activeProduct?.name}
               />
 
               {/* description  */}
               <TextArea
-                value={description}
+                value={productDetails?.description ?? ""}
                 handleChange={handleDescriptionChange}
                 id="description"
                 label="Description"
@@ -116,8 +100,8 @@ export const CreateOrEditModal: React.FC<CreateOrEditModalProps> = ({
             {/* price, color, and quantity  */}
             <div className="flex items-center justify-start space-x-6 mt-2">
               <InputField
-                value={price}
-                handleChange={handlePriceChange}
+                value={productDetails?.price?.toString() ?? "0"}
+                handleChange={handleInputChange}
                 id="price"
                 label="Price (USD)"
                 isRequired={true}
@@ -125,15 +109,15 @@ export const CreateOrEditModal: React.FC<CreateOrEditModalProps> = ({
               />
 
               <InputField
-                value={color}
-                handleChange={handleColorChange}
+                value={productDetails?.color ?? ""}
+                handleChange={handleInputChange}
                 id="color"
                 label="Color"
               />
 
               <InputField
-                value={quantity}
-                handleChange={handleQuantityChange}
+                value={productDetails?.quantity?.toString() ?? "0"}
+                handleChange={handleInputChange}
                 id="quantity"
                 label="Quantity"
                 type="number"
@@ -144,16 +128,16 @@ export const CreateOrEditModal: React.FC<CreateOrEditModalProps> = ({
             {/* shelf life, safety stock and weight  */}
             <div className="flex items-center justify-start space-x-6 mt-2">
               <InputField
-                value={shelfLife.toString()}
-                handleChange={handleShelfLifeChange}
+                value={productDetails?.shelfLife?.toString() ?? "0"}
+                handleChange={handleInputChange}
                 id="shelfLife"
                 label="Shelf life (days)"
                 type="number"
               />
 
               <InputField
-                value={safetyStock.toString()}
-                handleChange={handleSafetyStockChange}
+                value={productDetails?.safetyStock?.toString() ?? "0"}
+                handleChange={handleInputChange}
                 id="safetyStock"
                 label="Safety stock"
                 type="number"
@@ -164,30 +148,30 @@ export const CreateOrEditModal: React.FC<CreateOrEditModalProps> = ({
             <div className="flex flex-col space-y-4">
               <div className="font-bold text-blue-500 mt-8">Location</div>
               <InputField
-                value={productLocation?.address}
-                handleChange={handleLocationChange}
+                value={productDetails?.address ?? ""}
+                handleChange={handleInputChange}
                 id="address"
                 label="Street address"
                 isRequired={true}
               />
               <div className="flex items-center justify-start space-x-4">
                 <InputField
-                  value={productLocation?.city}
-                  handleChange={handleLocationChange}
+                  value={productDetails?.city ?? ""}
+                  handleChange={handleInputChange}
                   id="city"
                   label="City"
                   isRequired={true}
                 />
 
                 <InputField
-                  value={productLocation?.postalCode}
-                  handleChange={handleLocationChange}
+                  value={productDetails?.postalCode ?? ""}
+                  handleChange={handleInputChange}
                   id="postalCode"
                   label="Postal code"
                 />
                 <InputField
-                  value={productLocation?.country}
-                  handleChange={handleLocationChange}
+                  value={productDetails?.country ?? ""}
+                  handleChange={handleInputChange}
                   id="country"
                   label="Country"
                 />
@@ -251,7 +235,11 @@ export const CreateOrEditModal: React.FC<CreateOrEditModalProps> = ({
             </button>
             <button
               className="px-8 py-3 bg-blue-500 hover:bg-blue-300 rounded-full transition-all duration-300 ease-in-out flex items-center justify-center"
-              onClick={isEditingProduct ? updateProduct : createNewProduct}
+              onClick={
+                isEditingProduct
+                  ? () => updateProduct(productDetails)
+                  : () => createNewProduct(productDetails)
+              }
             >
               <span className="text-white font-bold text-lg">Retry</span>
             </button>

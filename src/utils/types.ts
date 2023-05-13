@@ -1,10 +1,3 @@
-export interface Location {
-  city: string;
-  postalCode: string;
-  country: string;
-  address: string;
-}
-
 export interface Custodian {
   address: string;
   name: string;
@@ -38,6 +31,21 @@ export interface Product {
   quantity?: number;
   shelflife?: number;
   safetystock?: number;
+  country?: string;
+  weight?: number;
+}
+
+export interface NewProduct {
+  name: string;
+  color?: string;
+  price?: number;
+  description?: string;
+  city?: string;
+  postalCode?: string;
+  address?: string;
+  quantity?: number;
+  shelfLife?: number;
+  safetyStock?: number;
   country?: string;
   weight?: number;
 }

@@ -7,7 +7,7 @@ interface ErrorIconProps {
 export const SuccessIcon: React.FC<ErrorIconProps> = ({ size = 24 }) => {
   return (
     <svg
-      enable-background="new 0 0 512 512"
+      enableBackground="new 0 0 512 512"
       height={size}
       id="Layer_1"
       version="1.1"
