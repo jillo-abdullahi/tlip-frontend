@@ -16,7 +16,7 @@ export const ProductDetailsHeader: React.FC<ProductDetailsHeaderProps> = ({
   setCreateEventModalOpen,
 }): JSX.Element => {
   return (
-    <div className="flex w-full items-center justify-between bg-blue-700 rounded-lg px-8 py-6">
+    <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 w-full items-center justify-between bg-blue-700 rounded-lg px-8 py-6">
       <div className="flex items-center justify-start space-x-2">
         <GradientAvatar uuid={activeProduct?.skucode} dimensions="50px" />
         <div className="flex flex-col">

@@ -13,7 +13,7 @@ export const ProductDetailsNav: React.FC<ProductDetailsNavProps> = ({
   return (
     <div className="flex w-full items-center justify-start">
       <button
-        className="flex space-x-6 items-center w-fit"
+        className="flex space-x-4 items-center w-fit group"
         onClick={() => {
           fetchProducts();
           setActiveProduct(null);
@@ -24,6 +24,7 @@ export const ProductDetailsNav: React.FC<ProductDetailsNavProps> = ({
           alt="left"
           width={10}
           height={12}
+          className="translate-x-0.5 transform group-hover:translate-x-0 duration-75 ease-in"
         />
         <span className="text-blue-200 font-bold">Go back</span>
       </button>

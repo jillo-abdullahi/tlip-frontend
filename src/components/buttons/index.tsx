@@ -7,7 +7,7 @@ interface ButtonProps {
 }
 
 const buttonTransition = "transition-all duration-300 ease-in-out";
-const commonButtonStyles = "flex items-center";
+const commonButtonStyles = "flex items-center shrink-0";
 
 export const Button: React.FC<ButtonProps> = ({ text, onClick }) => {
   return (

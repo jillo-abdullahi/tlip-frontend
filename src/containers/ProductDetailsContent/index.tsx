@@ -16,7 +16,7 @@ export const ProductDetailsContent: React.FC<ProductDetailsContentProps> = ({
         ) : null}
       </div>
 
-      <div className="grid grid-cols-3 gap-6 pb-4">
+      <div className="flex flex-col sm:space-y-0 sm:grid grid-cols-3 gap-6 pb-4">
         {/* created on  */}
         <ItemDetail
           title="Created On"
