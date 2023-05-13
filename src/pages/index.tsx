@@ -78,54 +78,36 @@ export default function Home() {
   };
 
   // get products list
-  const fetchProducts = (id?: string): void => {
+  const fetchProducts = async (id?: string): Promise<void> => {
     let url = `${BASE_API_URL}/items`;
     if (id) {
       url = `${BASE_API_URL}/items/${id}`;
     }
-    fetch(url)
-      .then((response) => {
-        if (!response.ok) {
-          setFetchProductsStatus(ProgressStatus.Failed);
-        }
-        return response.json();
-      })
-      .then((data) => {
-        if (id) {
-          setActiveProduct(data);
-        } else {
-          if (data.error) {
-            setProductsList([]);
-          } else {
-            setProductsList(data);
-          }
-        }
-        setFetchProductsStatus(ProgressStatus.Completed);
-      })
-      .catch((error) => {
-        setFetchProductsStatus(ProgressStatus.Failed);
-      });
-
-    setFetchProductsStatus(ProgressStatus.InProgress);
+    const response = await fetch(url);
+    if (response.ok) {
+      const result = await response.json();
+      id ? setActiveProduct(result) : setProductsList(result);
+      setFetchProductsStatus(ProgressStatus.Completed);
+    } else if (response.status === 404) {
+      setProductsList([]);
+      setFetchProductsStatus(ProgressStatus.Completed);
+    } else {
+      setFetchProductsStatus(ProgressStatus.Failed);
+    }
   };
 
   // fetch product events
-  const fetchProductEvents = (id: string): void => {
+  const fetchProductEvents = async (id: string): Promise<void> => {
     setFetchProductEventsStatus(ProgressStatus.InProgress);
-    fetch(`${BASE_API_URL}/items/${id}/events`)
-      .then((response) => {
-        if (!response.ok) {
-          setFetchProductEventsStatus(ProgressStatus.Failed);
-        }
-        return response.json();
-      })
-      .then((data) => {
-        setFetchProductEventsStatus(ProgressStatus.Completed);
-        setProductEvents(data);
-      })
-      .catch((error) => {
-        setFetchProductEventsStatus(ProgressStatus.Failed);
-      });
+    const response = await fetch(`${BASE_API_URL}/items/${id}/events`);
+
+    if (!response.ok) {
+      setFetchProductEventsStatus(ProgressStatus.Failed);
+    } else {
+      const result = await response.json();
+      setProductEvents(result);
+      setFetchProductEventsStatus(ProgressStatus.Completed);
+    }
   };
 
   // fetch all items to display
