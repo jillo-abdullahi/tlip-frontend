@@ -131,8 +131,8 @@ export default function Home() {
 
       {/* side/top nav bar  */}
       <Nav />
-      <div className="w-full h-full p-24 flex justify-center">
-        <div className="w-full max-w-730">
+      <div className="w-full h-full pt-28 px-8 sm:px-24 flex justify-center">
+        <div className="w-full sm:max-w-730">
           {/* products list Content  */}
           {activeProduct == null && (
             <ProductsContent

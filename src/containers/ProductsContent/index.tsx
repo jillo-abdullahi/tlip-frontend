@@ -20,9 +20,7 @@ export const ProductsContent: React.FC<ProductsContentProps> = ({
   setActiveProduct,
   fetchProductsStatus,
 }): JSX.Element => {
-
-
-  console.log({fetchProductsStatus})
+  
   return (
     <>
       {/* header section  */}

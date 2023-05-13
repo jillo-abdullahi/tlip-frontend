@@ -10,7 +10,7 @@ export const ProductCard: React.FC<{
   const creationDate = moment(new Date(createdon)).format("MMMM Do, YYYY");
 
   return (
-    <div className="w-full border border-transparent bg-blue-700 grid grid-cols-6 gap-2 p-6 rounded-xl hover:border-blue-300">
+    <div className="w-full border border-transparent bg-blue-700 grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-2 p-6 rounded-xl hover:border-blue-300">
       {/* avatar and product name  */}
       <div className="flex items-center justify-start space-x-3 col-span-2">
         <div className="flex items-center justify-start">
@@ -28,26 +28,32 @@ export const ProductCard: React.FC<{
       </ColumnItem>
 
       {/* created on  */}
-      <ColumnItem>
-        <span className="text-blue-100">{creationDate}</span>
-      </ColumnItem>
+      <div className="hidden sm:block">
+        <ColumnItem>
+          <span className="text-blue-100">{creationDate}</span>
+        </ColumnItem>
+      </div>
 
       {/* price in usd  */}
-      <ColumnItem>
-        <div className="flex items-center justify-start space-x-1 font-bold">
-          <span className="text-blue-200 text-sm">USD</span>
-          <span className="text-white font-bold">
-            {price ? price.toLocaleString() : "-"}
-          </span>
-        </div>
-      </ColumnItem>
+      <div className="hidden md:block">
+        <ColumnItem>
+          <div className="flex items-center justify-start space-x-1 font-bold">
+            <span className="text-blue-200 text-sm">USD</span>
+            <span className="text-white font-bold">
+              {price ? price.toLocaleString() : "-"}
+            </span>
+          </div>
+        </ColumnItem>
+      </div>
 
       {/* weight  */}
-      <ColumnItem>
-        <span className="text-blue-100 font-bold">
-          {quantity ? `${quantity.toLocaleString()}` : "-"}
-        </span>
-      </ColumnItem>
+      <div className="hidden md:block">
+        <ColumnItem>
+          <span className="text-blue-100 font-bold">
+            {quantity ? `${quantity.toLocaleString()}` : "-"}
+          </span>
+        </ColumnItem>
+      </div>
     </div>
   );
 };
