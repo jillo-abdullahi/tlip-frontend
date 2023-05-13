@@ -3,7 +3,7 @@ import { Dialog, Transition } from "@headlessui/react";
 
 export const Modal: React.FC<{
   open: boolean;
-  setOpen: () => void;
+  setOpen: Dispatch<SetStateAction<boolean>>;
   children: React.ReactNode;
 }> = ({ open, setOpen, children }) => {
   return (
