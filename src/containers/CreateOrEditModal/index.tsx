@@ -51,7 +51,7 @@ export const CreateOrEditModal: React.FC<CreateOrEditModalProps> = ({
   };
 
   return (
-    <Modal open={open} setOpen={setOpen}>
+    <Modal open={open} setOpen={closeModal}>
       {/* default modal state  */}
       {itemCreationOrEditStatus === null && (
         <div className="flex flex-col space-y-4">
