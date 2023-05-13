@@ -66,3 +66,11 @@ export interface ProductEvent {
   custodian: string;
   notes: string;
 }
+
+export interface NewProductEvent {
+  eventType: EventType;
+  eventStatus: EventStatus;
+  location: string;
+  custodian: string;
+  notes: string;
+}

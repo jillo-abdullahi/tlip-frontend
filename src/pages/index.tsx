@@ -83,7 +83,6 @@ export default function Home() {
     if (id) {
       url = `${BASE_API_URL}/items/${id}`;
     }
-
     fetch(url)
       .then((response) => {
         if (!response.ok) {
@@ -141,7 +140,6 @@ export default function Home() {
       fetchProductEvents(activeProduct.id);
     }
   }, [activeProduct]);
-
 
   return (
     <main className="flex relative w-full min-h-screen items-start justify-center">
