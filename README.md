@@ -3,7 +3,7 @@
 This is the frontend for a Supply Chain Items application, built with Next.js. This application interfaces with a Node.js REST API to perform CRUD (Create, Read, Update, Delete) operations on supply chain items.
 
 The application is hosted here:
-https://tlip-frontend-573a05zwd-jillo-abdullahi.vercel.app/
+[https://tlip-frontend.vercel.app/](https://tlip-frontend.vercel.app/)
 
 You can find the documentation for supply chain management API here: 
 https://tlip-api.onrender.com/api-docs/#/
